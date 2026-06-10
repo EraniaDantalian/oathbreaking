@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Art of Oathbreaking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Playfair+Display:wght@700;900&family=Righteous&family=Bebas+Neue&family=Cinzel:wght@700;900&family=UnifrakturMaguntia&family=Bodoni+Moda:wght@700&family=Pirata+One&family=Oswald:wght@700&family=Griffy&family=Fredoka+One&family=Raleway:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --font-title: 'Abril Fatface', cursive;
+            --font-subtitle: 'Playfair Display', serif;
+            --font-accent: 'Bodoni Moda', serif;
+            --font-nav: 'Bebas Neue', sans-serif;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            transition: all 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* THEME: Faded Grand Guignol */
+        body.theme-faded {
+            background: linear-gradient(135deg, #1a0f1f 0%, #2d1b3d 50%, #1a0f1f 100%);
+            color: #e8d9eb;
+        }
+
+        body.theme-faded header {
+            border-bottom: 2px solid #8b6b99;
+            background: rgba(26, 15, 31, 0.8);
+        }
+
+        body.theme-faded nav button {
+            border-color: #8b6b99;
+            color: #d4a574;
+        }
+
+        body.theme-faded nav button:hover,
+        body.theme-faded nav button.active {
+            background: #8b6b99;
+            color: #1a0f1f;
+        }
+
+        body.theme-faded h1 {
+            color: #d4a574;
+            text-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        }
+
+        body.theme-faded .subtitle {
+            color: #a88aa0;
+        }
+
+        body.theme-faded .card,
+        body.theme-faded .add-section,
+        body.theme-faded .canvas-container,
+        body.theme-faded .modal-content {
+            background: rgba(45, 27, 61, 0.8);
+            border-color: #8b6b99;
+        }
+
+        body.theme-faded .card:hover {
+            border-color: #d4a574;
+            box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+        }
+
+        body.theme-faded label,
+        body.theme-faded .card-title {
+            color: #d4a574;
+        }
+
+        body.theme-faded input,
+        body.theme-faded textarea,
+        body.theme-faded select {
+            background: rgba(26, 15, 31, 0.9);
+            border-color: #8b6b99;
+            color: #e8d9eb;
+        }
+
+        body.theme-faded .btn-add {
+            background: #8b6b99;
+            color: #1a0f1f;
+        }
+
+        body.theme-faded .btn-add:hover {
+            background: #d4a574;
+        }
+
+        body.theme-faded .btn-small,
+        body.theme-faded .btn-tiny {
+            border-color: #8b6b99;
+            color: #d4a574;
+        }
+
+        body.theme-faded .character-card {
+            border-color: #8b6b99;
+            background: rgba(45, 27, 61, 0.95);
+        }
+
+        body.theme-faded .character-card:hover {
+            border-color: #d4a574;
+        }
+
+        /* THEME: Bright Grotesque */
+        body.theme-bright {
+            background: linear-gradient(135deg, #1a0a15 0%, #3d1a2e 50%, #1a0a15 100%);
+            color: #fff0e6;
+        }
+
+        body.theme-bright header {
+            border-bottom: 3px solid #ff1493;
+            background: rgba(58, 10, 40, 0.9);
+        }
+
+        body.theme-bright nav button {
+            border-color: #ff1493;
+            color: #ffbe2e;
+        }
+
+        body.theme-bright nav button:hover,
+        body.theme-bright nav button.active {
+            background: #ff1493;
+            color: #fff0e6;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.6);
+        }
+
+        body.theme-bright h1 {
+            color: #ffbe2e;
+            text-shadow: 0 0 30px rgba(255, 190, 46, 0.5), 0 0 60px rgba(255, 20, 147, 0.3);
+        }
+
+        body.theme-bright .subtitle {
+            color: #ff6ec7;
+        }
+
+        body.theme-bright .card,
+        body.theme-bright .add-section,
+        body.theme-bright .canvas-container,
+        body.theme-bright .modal-content {
+            background: rgba(80, 20, 60, 0.9);
+            border-color: #ff1493;
+        }
+
+        body.theme-bright .card:hover {
+            border-color: #ffbe2e;
+            box-shadow: 0 0 30px rgba(255, 190, 46, 0.4), inset 0 0 20px rgba(255, 20, 147, 0.1);
+        }
+
+        body.theme-bright label,
+        body.theme-bright .card-title,
+        body.theme-bright .modal-header {
+            color: #ffbe2e;
+        }
+
+        body.theme-bright input,
+        body.theme-bright textarea,
+        body.theme-bright select {
+            background: rgba(26, 10, 21, 0.95);
+            border-color: #ff1493;
+            color: #fff0e6;
+        }
+
+        body.theme-bright .btn-add {
+            background: #ff1493;
+            color: #fff0e6;
+        }
+
+        body.theme-bright .btn-add:hover {
+            background: #ffbe2e;
+            color: #1a0a15;
+            box-shadow: 0 0 20px rgba(255, 190, 46, 0.5);
+        }
+
+        body.theme-bright .btn-small,
+        body.theme-bright .btn-tiny {
+            border-color: #ff1493;
+            color: #ffbe2e;
+        }
+
+        body.theme-bright .character-card {
+            border-color: #ff1493;
+            background: rgba(80, 20, 60, 0.95);
+        }
+
+        body.theme-bright .character-card:hover {
+            border-color: #ffbe2e;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
+        }
+
+        body.theme-bright .sticky-note {
+            background: #ffbe2e;
+            border-color: #ff1493;
+            color: #1a0a15;
+        }
+
+        /* THEME: Decrepit Theatrical */
+        body.theme-decrepit {
+            background: linear-gradient(135deg, #3d2817 0%, #5a3a2a 50%, #3d2817 100%);
+            color: #d4c5b5;
+        }
+
+        body.theme-decrepit header {
+            border-bottom: 2px solid #8b4513;
+            background: rgba(61, 40, 23, 0.95);
+        }
+
+        body.theme-decrepit nav button {
+            border-color: #8b4513;
+            color: #d4a574;
+        }
+
+        body.theme-decrepit nav button:hover,
+        body.theme-decrepit nav button.active {
+            background: #8b4513;
+            color: #d4c5b5;
+        }
+
+        body.theme-decrepit h1 {
+            color: #d4a574;
+            text-shadow: 0 0 15px rgba(139, 69, 19, 0.4);
+        }
+
+        body.theme-decrepit .subtitle {
+            color: #9d8b7d;
+        }
+
+        body.theme-decrepit .card,
+        body.theme-decrepit .add-section,
+        body.theme-decrepit .canvas-container,
+        body.theme-decrepit .modal-content {
+            background: rgba(61, 40, 23, 0.9);
+            border-color: #8b4513;
+        }
+
+        body.theme-decrepit .card:hover {
+            border-color: #d4a574;
+            box-shadow: 0 0 15px rgba(139, 69, 19, 0.3);
+        }
+
+        body.theme-decrepit label,
+        body.theme-decrepit .card-title,
+        body.theme-decrepit .modal-header {
+            color: #d4a574;
+        }
+
+        body.theme-decrepit input,
+        body.theme-decrepit textarea,
+        body.theme-decrepit select {
+            background: rgba(45, 25, 15, 0.95);
+            border-color: #8b4513;
+            color: #d4c5b5;
+        }
+
+        body.theme-decrepit .btn-add {
+            background: #8b4513;
+            color: #d4c5b5;
+        }
+
+        body.theme-decrepit .btn-add:hover {
+            background: #d4a574;
+            color: #3d2817;
+        }
+
+        body.theme-decrepit .btn-small,
+        body.theme-decrepit .btn-tiny {
+            border-color: #8b4513;
+            color: #d4a574;
+        }
+
+        body.theme-decrepit .character-card {
+            border-color: #8b4513;
+            background: rgba(61, 40, 23, 0.95);
+        }
+
+        body.theme-decrepit .character-card:hover {
+            border-color: #d4a574;
+        }
+
+        body.theme-decrepit .sticky-note {
+            background: #d4a574;
+            border-color: #8b4513;
+            color: #3d2817;
+        }
+
+        /* Shared Styles */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        header::before,
+        header::after {
+            content: "✦";
+            position: absolute;
+            font-size: 24px;
+            top: 20px;
+        }
+
+        header::before {
+            left: 20px;
+        }
+
+        header::after {
+            right: 20px;
+        }
+
+        h1 {
+            font-family: var(--font-title);
+            font-size: 4em;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            transition: all 0.4s ease;
+        }
+
+        .subtitle {
+            font-family: var(--font-accent);
+            font-size: 1.1em;
+            font-style: italic;
+            transition: all 0.4s ease;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            font-family: var(--font-nav);
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .theme-selector select {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: 2px solid;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: var(--font-nav);
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212, 165, 116, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-family: var(--font-accent);
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .card-character {
+            font-size: 0.9em;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .card-text {
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid;
+            font-weight: bold;
+        }
+
+        .btn-small:hover {
+            transform: scale(1.05);
+        }
+
+        .add-section {
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            border: 2px dashed;
+        }
+
+        .add-section h2 {
+            font-family: var(--font-subtitle);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-add {
+            border: none;
+            padding: 12px 30px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-family: var(--font-nav);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-add:hover {
+            transform: scale(1.05);
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .filter-section label {
+            margin-bottom: 0;
+        }
+
+        .filter-section select {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .canvas-container {
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            height: 800px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        svg.relationship-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .characters-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .character-card {
+            position: absolute;
+            width: 180px;
+            cursor: grab;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .character-card:hover {
+            cursor: move;
+        }
+
+        .character-image {
+            width: 160px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .character-name {
+            font-family: var(--font-accent);
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .character-card-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .btn-tiny {
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.75em;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: 1px solid;
+            font-weight: bold;
+        }
+
+        .btn-tiny:hover {
+            transform: scale(1.1);
+        }
+
+        .sticky-note {
+            position: absolute;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: move;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+            font-size: 0.85em;
+            max-width: 150px;
+            word-wrap: break-word;
+            z-index: 20;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .sticky-note:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-family: var(--font-subtitle);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid;
+            padding-bottom: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .relationship-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .rel-type-btn {
+            background: transparent;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+            border: 1px solid;
+            font-weight: bold;
+        }
+
+        .rel-type-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .delete-btn {
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+        .instructions {
+            border-left: 4px solid;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-container {
+                height: 600px;
+            }
+
+            .theme-selector {
+                position: static;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body class="theme-faded">
+    <div class="theme-selector">
+        <select onchange="changeTheme(this.value)">
+            <option value="theme-faded">Faded Grand Guignol</option>
+            <option value="theme-bright">Bright Grotesque</option>
+            <option value="theme-decrepit">Decrepit Theatrical</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>The Art of Oathbreaking</h1>
+            <p class="subtitle">A carnival of secrets and shattered promises</p>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-page="gallery">Gallery</button>
+            <button class="nav-btn" data-page="relationships">Relationships</button>
+        </nav>
+
+        <!-- Gallery Page -->
+        <div id="gallery" class="page active">
+            <div class="add-section">
+                <h2>Add New Entry</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <div class="form-group">
+                            <label>Character</label>
+                            <input type="text" id="galleryCharacter" placeholder="e.g., Gwaine">
+                        </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="galleryTitle" placeholder="e.g., First glimpse">
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL (Imgbox)</label>
+                            <input type="url" id="galleryImageUrl" placeholder="https://imgbox.com/...">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <textarea id="galleryNotes" placeholder="Rich text notes..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addGalleryEntry()">Add Entry</button>
+            </div>
+
+            <div class="filter-section">
+                <label for="characterFilter">Filter by Character:</label>
+                <select id="characterFilter" onchange="filterGallery()">
+                    <option value="">All Characters</option>
+                </select>
+            </div>
+
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <!-- Relationships Page -->
+        <div id="relationships" class="page">
+            <div class="instructions">
+                <strong>How to use:</strong> Drag character cards around the canvas. Click on notes to edit. Right-click a character to add a relationship to another character. Scroll down to add new characters.
+            </div>
+
+            <div class="canvas-container">
+                <svg class="relationship-canvas" id="relationshipCanvas"></svg>
+                <div class="characters-container" id="charactersContainer"></div>
+            </div>
+
+            <div class="add-section">
+                <h2>Add New Character</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <div class="form-group">
+                            <label>Character Name</label>
+                            <input type="text" id="relCharName" placeholder="e.g., Gwaine">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label>Character Image URL (Imgbox)</label>
+                            <input type="url" id="relCharImage" placeholder="https://imgbox.com/...">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addRelationshipCharacter()">Add Character</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Relationship Modal -->
+    <div id="relationshipModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Edit Relationship</div>
+            <div class="form-group">
+                <label>Between: <span id="modalRelCharacters"></span></label>
+            </div>
+            <div class="form-group">
+                <label>Relationship Type(s):</label>
+                <div class="relationship-types" id="relationshipTypeContainer"></div>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="relationshipNotes" placeholder="Add notes about this relationship..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-small delete-btn" onclick="deleteRelationship()">Delete</button>
+                <button class="btn-small" onclick="closeRelationshipModal()">Cancel</button>
+                <button class="btn-add" onclick="saveRelationship()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const relationshipTypes = [
+            'Married', 'Divorced', 'Affair', 'Poly', 'Flame Bond',
+            'Children', 'Adoption', 'Siblings', 'Parent', 'Friend',
+            'Enemy', 'Ally', 'Rival', 'Betrayer', 'Confidant'
+        ];
+
+        let galleryEntries = JSON.parse(localStorage.getItem('galleryEntries')) || [];
+        let relationshipCharacters = JSON.parse(localStorage.getItem('relationshipCharacters')) || [];
+        let relationships = JSON.parse(localStorage.getItem('relationships')) || [];
+        let selectedCharacters = [];
+        let currentEditingRelationship = null;
+        let draggedCard = null;
+
+        // Theme
+        function changeTheme(theme) {
+            document.body.className = theme;
+            localStorage.setItem('selectedTheme', theme);
+        }
+
+        const savedTheme = localStorage.getItem('selectedTheme') || 'theme-faded';
+        document.body.className = savedTheme;
+        document.querySelector('.theme-selector select').value = savedTheme;
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                const pageId = e.target.dataset.page;
+                document.getElementById(pageId).classList.add('active');
+                if (pageId === 'relationships') {
+                    renderRelationships();
+                }
+            });
+        });
+
+        // Gallery Functions
+        function addGalleryEntry() {
+            const character = document.getElementById('galleryCharacter').value.trim();
+            const title = document.getElementById('galleryTitle').value.trim();
+            const imageUrl = document.getElementById('galleryImageUrl').value.trim();
+            const notes = document.getElementById('galleryNotes').value.trim();
+
+            if (!character || !title || !notes) {
+                alert('Please fill in character, title, and notes.');
+                return;
+            }
+
+            const entry = {
+                id: Date.now(),
+                character,
+                title,
+                imageUrl,
+                notes
+            };
+
+            galleryEntries.push(entry);
+            localStorage.setItem('galleryEntries', JSON.stringify(galleryEntries));
+
+            document.getElementById('galleryCharacter').value = '';
+            document.getElementById('galleryTitle').value = '';
+            document.getElementById('galleryImageUrl').value = '';
+            document.getElementById('galleryNotes').value = '';
+
+            updateCharacterFilter();
+            renderGallery();
+        }
+
+        function updateCharacterFilter() {
+            const characters = [...new Set(galleryEntries.map(e => e.character))].sort();
+            const select = document.getElementById('characterFilter');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">All Characters</option>';
+            characters.forEach(char => {
+                const option = document.createElement('option');
+                option.value = char;
+                option.textContent = char;
+                select.appendChild(option);
+            });
+            select.value = currentValue;
+        }
+
+        function filterGallery() {
+            renderGallery();
+        }
+
+        function renderGallery() {
+            const filter = document.getElementById('characterFilter').value;
+            const filtered = filter ? galleryEntries.filter(e => e.character === filter) : galleryEntries;
+
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            filtered.forEach(entry => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-content">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">${entry.title}</div>
+                                <div class="card-character">${entry.character}</div>
+                            </div>
+                        </div>
+                        ${entry.imageUrl ? `<img src="${entry.imageUrl}" alt="${entry.title}" class="card-image" onerror="this.style.display='none'">` : ''}
+                        <div class="card-text">${entry.notes.replace(/\n/g, '<br>')}</div>
+                        <div class="card-buttons">
+                            <button class="btn-small" onclick="editGalleryEntry(${entry.id})">Edit</button>
+                            <button class="btn-small delete-btn" onclick="deleteGalleryEntry(${entry.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function deleteGalleryEntry(id) {
+            if (confirm('Delete this entry?')) {
+                galleryEntries = galleryEntries.filter(e => e.id !== id);
+                localStorage.setItem('galleryEntries', JSON.stringify(galleryEntries));
+                updateCharacterFilter();
+                renderGallery();
+            }
+        }
+
+        function editGalleryEntry(id) {
+            const entry = galleryEntries.find(e => e.id === id);
+            if (entry) {
+                document.getElementById('galleryCharacter').value = entry.character;
+                document.getElementById('galleryTitle').value = entry.title;
+                document.getElementById('galleryImageUrl').value = entry.imageUrl;
+                document.getElementById('galleryNotes').value = entry.notes;
+                deleteGalleryEntry(id);
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Relationships Functions
+        function addRelationshipCharacter() {
+            const name = document.getElementById('relCharName').value.trim();
+            const image = document.getElementById('relCharImage').value.trim();
+
+            if (!name) {
+                alert('Please enter a character name.');
+                return;
+            }
+
+            const char = {
+                id: Date.now(),
+                name,
+                image,
+                x: 50 + Math.random() * 200,
+                y: 50 + Math.random() * 200
+            };
+
+            relationshipCharacters.push(char);
+            localStorage.setItem('relationshipCharacters', JSON.stringify(relationshipCharacters));
+
+            document.getElementById('relCharName').value = '';
+            document.getElementById('relCharImage').value = '';
+
+            renderRelationships();
+        }
+
+        function renderRelationships() {
+            const container = document.getElementById('charactersContainer');
+            const canvas = document.getElementById('relationshipCanvas');
+            container.innerHTML = '';
+            canvas.innerHTML = '';
+
+            // Draw relationship lines
+            relationships.forEach(rel => {
+                const char1 = relationshipCharacters.find(c => c.id === rel.char1);
+                const char2 = relationshipCharacters.find(c => c.id === rel.char2);
+                if (char1 && char2) {
+                    const x1 = char1.x + 90;
+                    const y1 = char1.y + 110;
+                    const x2 = char2.x + 90;
+                    const y2 = char2.y + 110;
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('stroke', 'currentColor');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('stroke-dasharray', '5,5');
+                    line.setAttribute('opacity', '0.6');
+                    canvas.appendChild(line);
+
+                    const midX = (x1 + x2) / 2;
+                    const midY = (y1 + y2) / 2;
+                    const types = rel.types.join(', ');
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', midX);
+                    text.setAttribute('y', midY - 5);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('fill', 'currentColor');
+                    text.setAttribute('font-size', '12');
+                    text.setAttribute('font-weight', 'bold');
+                    text.textContent = types;
+                    text.style.cursor = 'pointer';
+                    text.addEventListener('click', () => editRelationship(rel.id));
+                    canvas.appendChild(text);
+                }
+            });
+
+            // Render character cards
+            relationshipCharacters.forEach(char => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.style.left = char.x + 'px';
+                card.style.top = char.y + 'px';
+                card.id = 'char-' + char.id;
+
+                card.innerHTML = `
+                    ${char.image ? `<img src="${char.image}" alt="${char.name}" class="character-image" onerror="this.style.display='none'">` : '<div style="width:160px;height:220px;opacity:0.5;border-radius:8px;display:flex;align-items:center;justify-content:center;color:currentColor;font-weight:bold;font-size:0.9em;text-align:center;">No Image</div>'}
+                    <div class="character-name">${char.name}</div>
+                    <div class="character-card-buttons">
+                        <button class="btn-tiny" onclick="startRelationship(${char.id})">+ Rel</button>
+                        <button class="btn-tiny delete-btn" onclick="deleteRelationshipCharacter(${char.id})">Del</button>
+                    </div>
+                `;
+
+                card.addEventListener('mousedown', (e) => {
+                    if (e.target.tagName !== 'BUTTON') {
+                        draggedCard = char;
+                        const rect = card.getBoundingClientRect();
+                        const containerRect = document.querySelector('.canvas-container').getBoundingClientRect();
+                        const offsetX = e.clientX - rect.left;
+                        const offsetY = e.clientY - rect.top;
+
+                        const handleMouseMove = (moveEvent) => {
+                            char.x = Math.max(0, Math.min(moveEvent.clientX - containerRect.left - offsetX, containerRect.width - 180));
+                            char.y = Math.max(0, Math.min(moveEvent.clientY - containerRect.top - offsetY, containerRect.height - 320));
+                            card.style.left = char.x + 'px';
+                            card.style.top = char.y + 'px';
+                            renderRelationships();
+                        };
+
+                        const handleMouseUp = () => {
+                            draggedCard = null;
+                            document.removeEventListener('mousemove', handleMouseMove);
+                            document.removeEventListener('mouseup', handleMouseUp);
+                            localStorage.setItem('relationshipCharacters', JSON.stringify(relationshipCharacters));
+                        };
+
+                        document.addEventListener('mousemove', handleMouseMove);
+                        document.addEventListener('mouseup', handleMouseUp);
+                    }
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function startRelationship(charId) {
+            selectedCharacters = [charId];
+            alert('Now click "+ Rel" on another character to create a relationship.');
+        }
+
+        function editRelationship(relId) {
+            currentEditingRelationship = relationships.find(r => r.id === relId);
+            if (currentEditingRelationship) {
+                const char1 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char1);
+                const char2 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char2);
+                document.getElementById('modalRelCharacters').textContent = `${char1.name} & ${char2.name}`;
+                document.getElementById('relationshipNotes').value = currentEditingRelationship.notes || '';
+
+                const typeContainer = document.getElementById('relationshipTypeContainer');
+                typeContainer.innerHTML = '';
+                relationshipTypes.forEach(type => {
+                    const btn = document.createElement('button');
+                    btn.className = 'rel-type-btn';
+                    btn.textContent = type;
+                    if (currentEditingRelationship.types.includes(type)) {
+                        btn.classList.add('selected');
+                    }
+                    btn.addEventListener('click', () => {
+                        btn.classList.toggle('selected');
+                    });
+                    typeContainer.appendChild(btn);
+                });
+
+                document.getElementById('relationshipModal').classList.add('active');
+            }
+        }
+
+        function saveRelationship() {
+            if (currentEditingRelationship) {
+                const selectedTypes = Array.from(document.querySelectorAll('.rel-type-btn.selected')).map(b => b.textContent);
+                const notes = document.getElementById('relationshipNotes').value;
+
+                if (selectedTypes.length === 0) {
+                    alert('Please select at least one relationship type.');
+                    return;
+                }
+
+                currentEditingRelationship.types = selectedTypes;
+                currentEditingRelationship.notes = notes;
+                localStorage.setItem('relationships', JSON.stringify(relationships));
+                closeRelationshipModal();
+                renderRelationships();
+            }
+        }
+
+        function deleteRelationship() {
+            if (currentEditingRelationship && confirm('Delete this relationship?')) {
+                relationships = relationships.filter(r => r.id !== currentEditingRelationship.id);
+                localStorage.setItem('relationships', JSON.stringify(relationships));
+                closeRelationshipModal();
+                renderRelationships();
+            }
+        }
+
+        function closeRelationshipModal() {
+            document.getElementById('relationshipModal').classList.remove('active');
+            currentEditingRelationship = null;
+            selectedCharacters = [];
+        }
+
+        function deleteRelationshipCharacter(charId) {
+            if (confirm('Delete this character?')) {
+                relationshipCharacters = relationshipCharacters.filter(c => c.id !== charId);
+                relationships = relationships.filter(r => r.char1 !== charId && r.char2 !== charId);
+                localStorage.setItem('relationshipCharacters', JSON.stringify(relationshipCharacters));
+                localStorage.setItem('relationships', JSON.stringify(relationships));
+                renderRelationships();
+            }
+        }
+
+        // Initialize
+        updateCharacterFilter();
+        renderGallery();
+
+        // When a character's "+ Rel" is clicked again
+        document.addEventListener('click', (e) => {
+            if (e.target.textContent.includes('+ Rel') && selectedCharacters.length > 0) {
+                const charId = parseInt(e.target.getAttribute('onclick').match(/\d+/)[0]);
+                if (selectedCharacters[0] !== charId) {
+                    const existingRel = relationships.find(r =>
+                        (r.char1 === selectedCharacters[0] && r.char2 === charId) ||
+                        (r.char1 === charId && r.char2 === selectedCharacters[0])
+                    );
+
+                    if (existingRel) {
+                        editRelationship(existingRel.id);
+                    } else {
+                        const newRel = {
+                            id: Date.now(),
+                            char1: selectedCharacters[0],
+                            char2: charId,
+                            types: [],
+                            notes: ''
+                        };
+                        relationships.push(newRel);
+                        localStorage.setItem('relationships', JSON.stringify(relationships));
+                        editRelationship(newRel.id);
+                    }
+                    selectedCharacters = [];
+                }
+            }
+        });
+    </script>
+</body>
+</html>
