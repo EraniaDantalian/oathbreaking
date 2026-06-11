@@ -898,10 +898,21 @@
             border-radius: 12px;
             padding: 15px;
             position: relative;
-            height: 600px;
+            height: 700px;
             margin-bottom: 30px;
             overflow: hidden;
             border: 2px solid;
+            background-image: 
+                linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        body.theme-carnival .canvas-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            background-image: 
+                linear-gradient(rgba(239, 68, 68,.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239, 68, 68,.08) 1px, transparent 1px);
         }
 
         svg.relationship-canvas {
@@ -929,12 +940,31 @@
             border-radius: 12px;
             padding: 8px;
             text-align: center;
-            transition: border-color 0.2s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             border: 2px solid;
+            user-select: none;
         }
 
         .character-card:hover {
             cursor: move;
+        }
+
+        .character-card.pinned {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .character-card.pinned::after {
+            content: "📌";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 1em;
+        }
+
+        .character-card.linking {
+            box-shadow: 0 0 15px currentColor;
+            border-width: 3px;
         }
 
         .character-image {
@@ -943,6 +973,7 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 6px;
+            pointer-events: none;
         }
 
         .character-name {
@@ -951,6 +982,7 @@
             font-size: 0.8em;
             margin-bottom: 6px;
             word-wrap: break-word;
+            pointer-events: none;
         }
 
         .character-card-buttons {
@@ -974,7 +1006,49 @@
             transform: scale(1.1);
         }
 
-        /* Timeline Styles */
+        .btn-tiny.pin {
+            font-size: 0.7em;
+        }
+
+        /* Relationship Canvas */
+        #dragLine {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .sticky-note {
+            position: absolute;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: move;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+            font-size: 0.8em;
+            max-width: 140px;
+            word-wrap: break-word;
+            z-index: 15;
+            user-select: none;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .sticky-note:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        }
+
+        .sticky-note .close-note {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .sticky-note:hover .close-note {
+            opacity: 1;
+        }
         .timeline-container {
             position: relative;
             padding: 20px;
@@ -1397,7 +1471,7 @@
         <!-- Relationships Page -->
         <div id="relationships" class="page">
             <div class="instructions">
-                <strong>How to use:</strong> Drag character cards around the canvas. Click on relationship lines to edit. Click "+ Rel" on a character, then "+ Rel" on another to create a relationship. Scroll down to add new characters.
+                <strong>How to use:</strong> Drag characters around the canvas. Click "Link" on a character and drag to another to connect them. Edit the relationship in the modal. Pin characters to lock them. Drag sticky notes around. Scroll down to add new characters.
             </div>
 
             <div class="canvas-container">
@@ -2129,12 +2203,128 @@
             renderRelationships();
         }
 
+        let linkingFrom = null;
+        let dragLineCanvas = null;
+
+        function startLinking(event, charId) {
+            event.preventDefault();
+            event.stopPropagation();
+            linkingFrom = charId;
+            
+            const card = document.getElementById('char-' + charId);
+            card.classList.add('linking');
+            
+            const container = document.querySelector('.canvas-container');
+            if (!dragLineCanvas) {
+                dragLineCanvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                dragLineCanvas.id = 'dragLine';
+                dragLineCanvas.setAttribute('width', container.offsetWidth);
+                dragLineCanvas.setAttribute('height', container.offsetHeight);
+                dragLineCanvas.style.position = 'absolute';
+                dragLineCanvas.style.top = '0';
+                dragLineCanvas.style.left = '0';
+                dragLineCanvas.style.pointerEvents = 'none';
+                dragLineCanvas.style.zIndex = '5';
+                container.appendChild(dragLineCanvas);
+            }
+            
+            const char = relationshipCharacters.find(c => c.id === charId);
+            const fromX = char.x + 80;
+            const fromY = char.y + 100;
+            
+            const handleMouseMove = (e) => {
+                const rect = container.getBoundingClientRect();
+                const toX = e.clientX - rect.left;
+                const toY = e.clientY - rect.top;
+                
+                dragLineCanvas.innerHTML = '';
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', fromX);
+                line.setAttribute('y1', fromY);
+                line.setAttribute('x2', toX);
+                line.setAttribute('y2', toY);
+                line.setAttribute('stroke', 'currentColor');
+                line.setAttribute('stroke-width', '2');
+                dragLineCanvas.appendChild(line);
+            };
+            
+            const handleMouseUp = (e) => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                
+                const rect = container.getBoundingClientRect();
+                const toX = e.clientX - rect.left;
+                const toY = e.clientY - rect.top;
+                
+                // Find which character was under the cursor
+                const elementsAtPoint = document.elementsFromPoint(e.clientX, e.clientY);
+                let targetCharId = null;
+                for (let elem of elementsAtPoint) {
+                    if (elem.classList && elem.classList.contains('character-card')) {
+                        const id = elem.id.replace('char-', '');
+                        targetCharId = parseInt(id);
+                        break;
+                    }
+                }
+                
+                if (targetCharId && targetCharId !== linkingFrom) {
+                    createOrEditRelationship(linkingFrom, targetCharId);
+                }
+                
+                if (dragLineCanvas) {
+                    dragLineCanvas.remove();
+                    dragLineCanvas = null;
+                }
+                
+                const card = document.getElementById('char-' + linkingFrom);
+                if (card) card.classList.remove('linking');
+                linkingFrom = null;
+            };
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function createOrEditRelationship(char1Id, char2Id) {
+            const existingRel = relationships.find(r =>
+                (r.char1 === char1Id && r.char2 === char2Id) ||
+                (r.char1 === char2Id && r.char2 === char1Id)
+            );
+            
+            if (existingRel) {
+                editRelationship(existingRel.id);
+            } else {
+                const newRel = {
+                    id: Date.now(),
+                    char1: char1Id,
+                    char2: char2Id,
+                    types: [],
+                    notes: '',
+                    noteX: 0,
+                    noteY: 0
+                };
+                relationships.push(newRel);
+                localStorage.setItem('relationships', JSON.stringify(relationships));
+                editRelationship(newRel.id);
+            }
+        }
+
+        function togglePin(charId) {
+            const char = relationshipCharacters.find(c => c.id === charId);
+            if (char) {
+                char.pinned = !char.pinned;
+                localStorage.setItem('relationshipCharacters', JSON.stringify(relationshipCharacters));
+                renderRelationships();
+            }
+        }
+
         function renderRelationships() {
             const container = document.getElementById('charactersContainer');
             const canvas = document.getElementById('relationshipCanvas');
             container.innerHTML = '';
             canvas.innerHTML = '';
 
+            // Draw lines and labels
             relationships.forEach(rel => {
                 const char1 = relationshipCharacters.find(c => c.id === rel.char1);
                 const char2 = relationshipCharacters.find(c => c.id === rel.char2);
@@ -2171,12 +2361,49 @@
                     text.style.cursor = 'pointer';
                     text.addEventListener('click', () => editRelationship(rel.id));
                     canvas.appendChild(text);
+                    
+                    // Sticky note for relationship
+                    if (rel.notes) {
+                        const noteEl = document.createElement('div');
+                        noteEl.className = 'sticky-note';
+                        noteEl.style.left = (rel.noteX || midX - 70) + 'px';
+                        noteEl.style.top = (rel.noteY || midY + 20) + 'px';
+                        noteEl.innerHTML = `<span class="close-note" onclick="deleteRelationship(${rel.id})">✕</span>${rel.notes}`;
+                        
+                        let noteOffset = {x: 0, y: 0};
+                        noteEl.addEventListener('mousedown', (e) => {
+                            if (e.target.classList.contains('close-note')) return;
+                            noteOffset.x = e.clientX - noteEl.offsetLeft;
+                            noteOffset.y = e.clientY - noteEl.offsetTop;
+                            
+                            const handleNoteMove = (moveEvent) => {
+                                const containerRect = document.querySelector('.canvas-container').getBoundingClientRect();
+                                noteEl.style.left = (moveEvent.clientX - containerRect.left - noteOffset.x) + 'px';
+                                noteEl.style.top = (moveEvent.clientY - containerRect.top - noteOffset.y) + 'px';
+                            };
+                            
+                            const handleNoteUp = () => {
+                                document.removeEventListener('mousemove', handleNoteMove);
+                                document.removeEventListener('mouseup', handleNoteUp);
+                                rel.noteX = parseInt(noteEl.style.left);
+                                rel.noteY = parseInt(noteEl.style.top);
+                                localStorage.setItem('relationships', JSON.stringify(relationships));
+                            };
+                            
+                            document.addEventListener('mousemove', handleNoteMove);
+                            document.addEventListener('mouseup', handleNoteUp);
+                        });
+                        
+                        container.appendChild(noteEl);
+                    }
                 }
             });
 
+            // Render character cards
             relationshipCharacters.forEach(char => {
                 const card = document.createElement('div');
                 card.className = 'character-card';
+                if (char.pinned) card.classList.add('pinned');
                 card.style.left = char.x + 'px';
                 card.style.top = char.y + 'px';
                 card.id = 'char-' + char.id;
@@ -2185,13 +2412,16 @@
                     ${char.image ? `<img src="${char.image}" alt="${char.name}" class="character-image" onerror="this.style.display='none'">` : '<div style="width:145px;height:200px;opacity:0.3;border-radius:8px;display:flex;align-items:center;justify-content:center;color:currentColor;font-weight:bold;font-size:0.8em;text-align:center;">No Image</div>'}
                     <div class="character-name">${char.name}</div>
                     <div class="character-card-buttons">
-                        <button class="btn-tiny" onclick="startRelationship(${char.id})">+ Rel</button>
+                        <button class="btn-tiny" onmousedown="startLinking(event, ${char.id})">Link</button>
+                        <button class="btn-tiny" onclick="togglePin(${char.id})">📌</button>
                         <button class="btn-tiny delete-btn" onclick="deleteRelationshipCharacter(${char.id})">Del</button>
                     </div>
                 `;
 
-                card.addEventListener('mousedown', (e) => {
-                    if (e.target.tagName !== 'BUTTON') {
+                // Drag to move (unless pinned)
+                if (!char.pinned) {
+                    card.addEventListener('mousedown', (e) => {
+                        if (e.target.tagName === 'BUTTON') return;
                         draggedCard = char;
                         const rect = card.getBoundingClientRect();
                         const containerRect = document.querySelector('.canvas-container').getBoundingClientRect();
@@ -2215,16 +2445,11 @@
 
                         document.addEventListener('mousemove', handleMouseMove);
                         document.addEventListener('mouseup', handleMouseUp);
-                    }
-                });
+                    });
+                }
 
                 container.appendChild(card);
             });
-        }
-
-        function startRelationship(charId) {
-            selectedCharacters = [charId];
-            alert('Now click "+ Rel" on another character.');
         }
 
         function editRelationship(relId) {
@@ -2302,33 +2527,6 @@
         renderGallery();
 
         // Relationship creation
-        document.addEventListener('click', (e) => {
-            if (e.target.textContent.includes('+ Rel') && selectedCharacters.length > 0) {
-                const charId = parseInt(e.target.getAttribute('onclick').match(/\d+/)[0]);
-                if (selectedCharacters[0] !== charId) {
-                    const existingRel = relationships.find(r =>
-                        (r.char1 === selectedCharacters[0] && r.char2 === charId) ||
-                        (r.char1 === charId && r.char2 === selectedCharacters[0])
-                    );
-
-                    if (existingRel) {
-                        editRelationship(existingRel.id);
-                    } else {
-                        const newRel = {
-                            id: Date.now(),
-                            char1: selectedCharacters[0],
-                            char2: charId,
-                            types: [],
-                            notes: ''
-                        };
-                        relationships.push(newRel);
-                        localStorage.setItem('relationships', JSON.stringify(relationships));
-                        editRelationship(newRel.id);
-                    }
-                    selectedCharacters = [];
-                }
-            }
-        });
     </script>
 </body>
 </html>
