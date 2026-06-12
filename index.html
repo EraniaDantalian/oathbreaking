@@ -1065,6 +1065,18 @@
             pointer-events: none;
         }
 
+        .character-role {
+            font-size: 0.7em;
+            opacity: 0.7;
+            margin-bottom: 2px;
+            pointer-events: none;
+            font-style: italic;
+        }
+
+        .character-symbol {
+            pointer-events: none;
+        }
+
         .character-card-buttons {
             display: flex;
             gap: 4px;
@@ -1602,6 +1614,16 @@
                         <input type="text" id="relCharName" placeholder="e.g., Gwaine">
                     </div>
                     <div class="form-group">
+                        <label>Role/Title (Optional)</label>
+                        <input type="text" id="relCharRole" placeholder="e.g., Antihero">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Symbol/Icon (Optional)</label>
+                        <input type="text" id="relCharSymbol" placeholder="e.g., 🗡️ or ◈">
+                    </div>
+                    <div class="form-group">
                         <label>Character Image URL (Optional)</label>
                         <input type="url" id="relCharImage" placeholder="https://imgbox.com/...">
                     </div>
@@ -1772,6 +1794,25 @@
             'Primary': ['Married', 'Divorced', 'Affair', 'Poly', 'Flame Bond'],
             'Family': ['Parent', 'Child', 'Sibling', 'Nibling', 'Adopted Child'],
             'Social': ['Friend', 'Enemy', 'Ally', 'Rival', 'Betrayer', 'Confidant']
+        };
+
+        const REL_VISUAL = {
+            'Married': { icon: '💍', color: '#e74c3c', dash: '', label: 'Married' },
+            'Divorced': { icon: '💔', color: '#e67e22', dash: '10,5', label: 'Divorced' },
+            'Affair': { icon: '🔥', color: '#e91e63', dash: '2,4', label: 'Affair' },
+            'Poly': { icon: '💕', color: '#9b59b6', dash: '', label: 'Poly' },
+            'Flame Bond': { icon: '🔥', color: '#f39c12', dash: '', label: 'Flame' },
+            'Parent': { icon: '👨', color: '#3498db', dash: '', label: 'Parent' },
+            'Child': { icon: '👶', color: '#3498db', dash: '', label: 'Child' },
+            'Sibling': { icon: '👫', color: '#16a085', dash: '', label: 'Sibling' },
+            'Nibling': { icon: '👧', color: '#16a085', dash: '', label: 'Nibling' },
+            'Adopted Child': { icon: '🤝', color: '#27ae60', dash: '5,5', label: 'Adopted' },
+            'Friend': { icon: '💚', color: '#2ecc71', dash: '', label: 'Friend' },
+            'Enemy': { icon: '⚔️', color: '#c0392b', dash: '2,4', label: 'Enemy' },
+            'Ally': { icon: '🛡️', color: '#2980b9', dash: '', label: 'Ally' },
+            'Rival': { icon: '⚡', color: '#f1c40f', dash: '4,4', label: 'Rival' },
+            'Betrayer': { icon: '🗡️', color: '#8b0000', dash: '8,3', label: 'Betrayer' },
+            'Confidant': { icon: '🤫', color: '#d35400', dash: '', label: 'Confidant' }
         };
 
         const themes = [
@@ -2550,6 +2591,8 @@
         // Relationships Functions
         function addRelationshipCharacter() {
             const name = document.getElementById('relCharName').value.trim();
+            const role = document.getElementById('relCharRole').value.trim();
+            const symbol = document.getElementById('relCharSymbol').value.trim();
             const image = document.getElementById('relCharImage').value.trim();
 
             if (!name) {
@@ -2560,6 +2603,8 @@
             const char = {
                 id: Date.now(),
                 name,
+                role,
+                symbol,
                 image,
                 x: 50 + Math.random() * 200,
                 y: 50 + Math.random() * 200
@@ -2569,6 +2614,8 @@
             localStorage.setItem('relationshipCharacters', JSON.stringify(relationshipCharacters));
 
             document.getElementById('relCharName').value = '';
+            document.getElementById('relCharRole').value = '';
+            document.getElementById('relCharSymbol').value = '';
             document.getElementById('relCharImage').value = '';
 
             renderRelationships();
@@ -2591,7 +2638,7 @@
             container.innerHTML = '';
             canvas.innerHTML = '';
 
-            // Draw lines and labels
+            // Draw lines and labels with proper visual styles
             relationships.forEach(rel => {
                 const char1 = relationshipCharacters.find(c => c.id === rel.char1);
                 const char2 = relationshipCharacters.find(c => c.id === rel.char2);
@@ -2601,28 +2648,48 @@
                     const x2 = char2.x + 80;
                     const y2 = char2.y + 100;
 
+                    // Get first relationship type for line style
+                    const firstType = rel.types[0] || 'Friend';
+                    const relVisual = REL_VISUAL[firstType] || REL_VISUAL['Friend'];
+
                     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     line.setAttribute('x1', x1);
                     line.setAttribute('y1', y1);
                     line.setAttribute('x2', x2);
                     line.setAttribute('y2', y2);
-                    line.setAttribute('stroke', 'currentColor');
+                    line.setAttribute('stroke', relVisual.color);
                     line.setAttribute('stroke-width', '2');
-                    line.setAttribute('stroke-dasharray', '5,5');
-                    line.setAttribute('opacity', '0.6');
+                    if (relVisual.dash) {
+                        line.setAttribute('stroke-dasharray', relVisual.dash);
+                    }
+                    line.setAttribute('opacity', '0.8');
                     line.style.cursor = 'pointer';
                     line.addEventListener('click', () => editRelationship(rel.id));
                     canvas.appendChild(line);
 
                     const midX = (x1 + x2) / 2;
                     const midY = (y1 + y2) / 2;
-                    const types = rel.types.join(', ');
+                    
+                    // Show icons for each relationship type
+                    const icons = rel.types.map(t => REL_VISUAL[t]?.icon || '•').join('');
+                    const iconText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    iconText.setAttribute('x', midX);
+                    iconText.setAttribute('y', midY - 10);
+                    iconText.setAttribute('text-anchor', 'middle');
+                    iconText.setAttribute('font-size', '16');
+                    iconText.textContent = icons;
+                    iconText.style.cursor = 'pointer';
+                    iconText.addEventListener('click', () => editRelationship(rel.id));
+                    canvas.appendChild(iconText);
+                    
+                    // Show relationship labels below icons
+                    const types = rel.types.join(' + ');
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     text.setAttribute('x', midX);
-                    text.setAttribute('y', midY - 5);
+                    text.setAttribute('y', midY + 10);
                     text.setAttribute('text-anchor', 'middle');
-                    text.setAttribute('fill', 'currentColor');
-                    text.setAttribute('font-size', '12');
+                    text.setAttribute('fill', relVisual.color);
+                    text.setAttribute('font-size', '11');
                     text.setAttribute('font-weight', 'bold');
                     text.textContent = types;
                     text.style.cursor = 'pointer';
@@ -2634,7 +2701,7 @@
                         const noteEl = document.createElement('div');
                         noteEl.className = 'sticky-note';
                         noteEl.style.left = (rel.noteX || midX - 70) + 'px';
-                        noteEl.style.top = (rel.noteY || midY + 20) + 'px';
+                        noteEl.style.top = (rel.noteY || midY + 30) + 'px';
                         noteEl.innerHTML = `<span class="close-note" onclick="deleteRelationship(${rel.id})">✕</span>${rel.notes}`;
                         
                         let noteOffset = {x: 0, y: 0};
@@ -2678,6 +2745,8 @@
                 card.innerHTML = `
                     ${char.image ? `<img src="${char.image}" alt="${char.name}" class="character-image" onerror="this.style.display='none'">` : '<div style="width:145px;height:200px;opacity:0.3;border-radius:8px;display:flex;align-items:center;justify-content:center;color:currentColor;font-weight:bold;font-size:0.8em;text-align:center;">No Image</div>'}
                     <div class="character-name">${char.name}</div>
+                    <div class="character-role">${char.role || ''}</div>
+                    <div class="character-symbol" style="font-size:1.2em;margin:2px 0;">${char.symbol || ''}</div>
                     <div class="character-card-buttons">
                         <button class="btn-tiny" onclick="selectCharacter(${char.id})">Select</button>
                         <button class="btn-tiny" onclick="togglePin(${char.id})">📌</button>
