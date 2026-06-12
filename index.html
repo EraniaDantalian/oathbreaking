@@ -34,7 +34,7 @@
         }
 
         body.theme-faded header {
-            border-bottom: 2px solid #8b6b99;
+            border-bottom: 3px solid #8b6b99;
             background: rgba(26, 15, 31, 0.8);
         }
 
@@ -46,12 +46,13 @@
 
         body.theme-faded nav button:hover {
             color: #e8d9eb;
-            border-bottom: 2px solid #d4a574;
+            border-bottom: 3px solid #d4a574;
         }
 
         body.theme-faded nav button.active {
+            opacity: 1;
             color: #d4a574;
-            border-bottom: 2px solid #d4a574;
+            border-bottom: 3px solid #d4a574;
         }
 
         body.theme-faded h1 {
@@ -133,12 +134,13 @@
 
         body.theme-bright nav button:hover {
             color: #fff0e6;
-            border-bottom: 2px solid #ff1493;
+            border-bottom: 3px solid #ff1493;
         }
 
         body.theme-bright nav button.active {
+            opacity: 1;
             color: #ffbe2e;
-            border-bottom: 2px solid #ff1493;
+            border-bottom: 3px solid #ff1493;
         }
 
         body.theme-bright h1 {
@@ -229,12 +231,13 @@
 
         body.theme-jewel nav button:hover {
             color: #2dd4bf;
-            border-bottom: 2px solid #2dd4bf;
+            border-bottom: 3px solid #2dd4bf;
         }
 
         body.theme-jewel nav button.active {
+            opacity: 1;
             color: #06b6d4;
-            border-bottom: 2px solid #2dd4bf;
+            border-bottom: 3px solid #2dd4bf;
         }
 
         body.theme-jewel h1 {
@@ -316,12 +319,13 @@
 
         body.theme-gilded nav button:hover {
             color: #f5e6d3;
-            border-bottom: 2px solid #f4a460;
+            border-bottom: 3px solid #f4a460;
         }
 
         body.theme-gilded nav button.active {
+            opacity: 1;
             color: #ffd700;
-            border-bottom: 2px solid #f4a460;
+            border-bottom: 3px solid #f4a460;
         }
 
         body.theme-gilded h1 {
@@ -403,12 +407,13 @@
 
         body.theme-scarlet nav button:hover {
             color: #f0e6e1;
-            border-bottom: 2px solid #dc2626;
+            border-bottom: 3px solid #dc2626;
         }
 
         body.theme-scarlet nav button.active {
+            opacity: 1;
             color: #fbbf24;
-            border-bottom: 2px solid #dc2626;
+            border-bottom: 3px solid #dc2626;
         }
 
         body.theme-scarlet h1 {
@@ -491,12 +496,13 @@
 
         body.theme-carnival nav button:hover {
             color: #b91c1c;
-            border-bottom: 2px solid #ef4444;
+            border-bottom: 3px solid #ef4444;
         }
 
         body.theme-carnival nav button.active {
+            opacity: 1;
             color: #ef4444;
-            border-bottom: 2px solid #ef4444;
+            border-bottom: 3px solid #ef4444;
         }
 
         body.theme-carnival h1 {
@@ -618,7 +624,7 @@
             justify-content: flex-start;
             margin-bottom: 30px;
             flex-wrap: wrap;
-            border-bottom: 2px solid;
+            border-bottom: 3px solid;
             border-bottom-color: inherit;
         }
 
@@ -635,14 +641,17 @@
             border: none;
             border-bottom: 3px solid transparent;
             margin-bottom: -2px;
+            color: inherit;
+            opacity: 0.7;
         }
 
         nav button:hover {
-            opacity: 0.8;
+            opacity: 1;
         }
 
         nav button.active {
-            border-bottom-color: currentColor;
+            opacity: 1 !important;
+            border-bottom: 3px solid currentColor !important;
         }
 
         .controls {
@@ -1187,7 +1196,7 @@
             font-family: var(--font-title);
             font-size: 1.3em;
             margin-bottom: 15px;
-            border-bottom: 2px solid;
+            border-bottom: 3px solid;
             padding-bottom: 8px;
         }
 
@@ -1584,7 +1593,7 @@
                 <div class="settings-data-buttons">
                     <button class="btn-small" onclick="exportData()">⬇ Export</button>
                     <button class="btn-small" onclick="importData()">⬆ Import</button>
-                    <button class="btn-small" onclick="openGitHubSetup()">🔧 GitHub</button>
+                    <button class="btn-small" onclick="openGitHubFineModal()">🔧 GitHub Sync</button>
                 </div>
             </div>
 
@@ -1670,29 +1679,42 @@
         </div>
     </div>
 
-    <!-- GitHub Backup Setup Modal -->
-    <div id="githubModal" class="modal">
+    <!-- GitHub Fine-Grained Token Modal -->
+    <div id="githubFineModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">Setup GitHub Auto-Backup</div>
+            <div class="modal-header">Setup GitHub Sync</div>
+            <div style="font-size: 0.9em; margin-bottom: 15px; line-height: 1.6;">
+                <strong>How to create a token:</strong><br>
+                1. Go to github.com → Settings (top right)<br>
+                2. Developer settings → Personal access tokens → Fine-grained tokens<br>
+                3. Generate new token, name it (e.g. oathbreaking-sync)<br>
+                4. Set expiration (no expiration or 1 year)<br>
+                5. Repository access → Only select repositories → pick your repo<br>
+                6. Permissions → Contents: Read and write<br>
+                7. Copy the token immediately
+            </div>
             <div class="form-group">
                 <label>GitHub Username</label>
-                <input type="text" id="githubUsername" placeholder="your-github-username">
+                <input type="text" id="githubFineUsername" placeholder="your-username">
             </div>
             <div class="form-group">
                 <label>Repository Name</label>
-                <input type="text" id="githubRepoName" placeholder="oathbreaking">
+                <input type="text" id="githubFineRepo" placeholder="oathbreaking">
             </div>
             <div class="form-group">
-                <label>Personal Access Token</label>
-                <input type="password" id="githubTokenInput" placeholder="ghp_...">
-                <div style="font-size: 0.85em; margin-top: 8px; opacity: 0.8;">
-                    <a href="https://github.com/settings/tokens" target="_blank" style="color: inherit;">Create token here</a> (needs 'repo' scope)
-                </div>
+                <label>Fine-Grained Personal Access Token</label>
+                <input type="password" id="githubFineToken" placeholder="github_pat_...">
             </div>
+            <div class="form-group">
+                <label>JSON File Path (default: data.json)</label>
+                <input type="text" id="githubFinePath" placeholder="data.json" value="data.json">
+            </div>
+            <div id="githubFineStatus" style="font-size: 0.9em; margin-bottom: 10px;"></div>
             <div class="modal-buttons">
-                <button class="btn-small delete-btn" onclick="clearGitHubConfig()">Clear</button>
-                <button class="btn-small" onclick="closeGitHubModal()">Cancel</button>
-                <button class="btn-add" onclick="saveGitHubConfig()">Save</button>
+                <button class="btn-small delete-btn" onclick="clearGitHubFineConfig()">Clear</button>
+                <button class="btn-small" onclick="closeGitHubFineModal()">Cancel</button>
+                <button class="btn-small" onclick="testGitHubFineConnection()">Test Connection</button>
+                <button class="btn-add" onclick="saveGitHubFineConfig()">Save & Sync</button>
             </div>
         </div>
     </div>
@@ -1986,6 +2008,175 @@
         }, 300000);
 
         // GitHub Setup
+        // GitHub Fine-Grained Token Functions
+        function openGitHubFineModal() {
+            const username = localStorage.getItem('githubFineUsername') || '';
+            const repo = localStorage.getItem('githubFineRepo') || '';
+            const path = localStorage.getItem('githubFinePath') || 'data.json';
+            document.getElementById('githubFineUsername').value = username;
+            document.getElementById('githubFineRepo').value = repo;
+            document.getElementById('githubFineToken').value = '';
+            document.getElementById('githubFinePath').value = path;
+            document.getElementById('githubFineStatus').innerHTML = '';
+            document.getElementById('githubFineModal').classList.add('active');
+        }
+
+        function testGitHubFineConnection() {
+            const username = document.getElementById('githubFineUsername').value.trim();
+            const repo = document.getElementById('githubFineRepo').value.trim();
+            const token = document.getElementById('githubFineToken').value.trim();
+            const path = document.getElementById('githubFinePath').value.trim();
+            
+            if (!username || !repo || !token || !path) {
+                document.getElementById('githubFineStatus').innerHTML = '<span style="color: #ff6b6b;">Please fill in all fields.</span>';
+                return;
+            }
+            
+            const statusEl = document.getElementById('githubFineStatus');
+            statusEl.innerHTML = 'Testing connection...';
+            
+            const backup = {
+                galleryEntries,
+                relationshipCharacters,
+                relationships,
+                arcs,
+                theme: localStorage.getItem('selectedTheme'),
+                font: localStorage.getItem('selectedFont'),
+                syncDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(backup, null, 2);
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(response => {
+                if (response.ok || response.status === 404) {
+                    statusEl.innerHTML = '<span style="color: #51cf66;">✓ Connection successful!</span>';
+                } else {
+                    statusEl.innerHTML = '<span style="color: #ff6b6b;">Connection failed. Check token and repo.</span>';
+                }
+            })
+            .catch(err => {
+                statusEl.innerHTML = '<span style="color: #ff6b6b;">Error: ' + err.message + '</span>';
+            });
+        }
+
+        function saveGitHubFineConfig() {
+            const username = document.getElementById('githubFineUsername').value.trim();
+            const repo = document.getElementById('githubFineRepo').value.trim();
+            const token = document.getElementById('githubFineToken').value.trim();
+            const path = document.getElementById('githubFinePath').value.trim() || 'data.json';
+            
+            if (!username || !repo || !token) {
+                alert('Please fill in username, repo, and token.');
+                return;
+            }
+            
+            localStorage.setItem('githubFineUsername', username);
+            localStorage.setItem('githubFineRepo', repo);
+            localStorage.setItem('githubFineToken', token);
+            localStorage.setItem('githubFinePath', path);
+            
+            syncToGitHubFine();
+        }
+
+        function syncToGitHubFine() {
+            const username = localStorage.getItem('githubFineUsername');
+            const repo = localStorage.getItem('githubFineRepo');
+            const token = localStorage.getItem('githubFineToken');
+            const path = localStorage.getItem('githubFinePath') || 'data.json';
+            
+            if (!username || !repo || !token) return;
+            
+            const backup = {
+                galleryEntries,
+                relationshipCharacters,
+                relationships,
+                arcs,
+                theme: localStorage.getItem('selectedTheme'),
+                font: localStorage.getItem('selectedFont'),
+                syncDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(backup, null, 2);
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            
+            // First, get the current file SHA (needed for updates)
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else if (response.status === 404) {
+                    return null; // File doesn't exist yet
+                } else {
+                    throw new Error('Failed to fetch file');
+                }
+            })
+            .then(data => {
+                const sha = data ? data.sha : null;
+                
+                const requestBody = {
+                    message: `Auto-sync: ${new Date().toISOString()}`,
+                    content: btoa(dataStr),
+                    branch: 'main'
+                };
+                
+                if (sha) {
+                    requestBody.sha = sha;
+                }
+                
+                return fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('✓ Data synced to GitHub!');
+                    closeGitHubFineModal();
+                } else {
+                    alert('Sync failed. Check your token and repo.');
+                }
+            })
+            .catch(err => {
+                console.error('Sync error:', err);
+                alert('Error syncing to GitHub: ' + err.message);
+            });
+        }
+
+        function clearGitHubFineConfig() {
+            if (confirm('Clear GitHub sync settings?')) {
+                localStorage.removeItem('githubFineUsername');
+                localStorage.removeItem('githubFineRepo');
+                localStorage.removeItem('githubFineToken');
+                localStorage.removeItem('githubFinePath');
+                alert('GitHub sync cleared.');
+                closeGitHubFineModal();
+            }
+        }
+
+        function closeGitHubFineModal() {
+            document.getElementById('githubFineModal').classList.remove('active');
+            document.getElementById('githubFineStatus').innerHTML = '';
+        }
+
+        // Old GitHub Auto-Backup Functions (keeping for backwards compatibility)
         function openGitHubSetup() {
             const githubUser = localStorage.getItem('githubUser') || '';
             const githubRepo = localStorage.getItem('githubRepo') || '';
