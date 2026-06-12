@@ -614,24 +614,35 @@
 
         nav {
             display: flex;
-            gap: 30px;
-            justify-content: center;
+            gap: 0;
+            justify-content: flex-start;
             margin-bottom: 30px;
             flex-wrap: wrap;
-            border-bottom: 1px solid;
+            border-bottom: 2px solid;
             border-bottom-color: inherit;
-            padding-bottom: 15px;
         }
 
         nav button {
             font-family: var(--font-body);
-            padding: 0;
+            padding: 12px 24px;
             cursor: pointer;
             font-size: 1em;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: bold;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        nav button:hover {
+            opacity: 0.8;
+        }
+
+        nav button.active {
+            border-bottom-color: currentColor;
         }
 
         .controls {
@@ -877,6 +888,26 @@
             transform: scale(1.05);
         }
 
+        /* View-Only Mode */
+        body.view-only .add-section,
+        body.view-only .btn-add,
+        body.view-only .btn-small,
+        body.view-only .btn-tiny,
+        body.view-only input[type="text"],
+        body.view-only input[type="url"],
+        body.view-only input[type="color"],
+        body.view-only textarea,
+        body.view-only select,
+        body.view-only .filter-section {
+            display: none !important;
+        }
+
+        body.view-only .card-buttons,
+        body.view-only .character-card-buttons,
+        body.view-only .arc-header {
+            display: none !important;
+        }
+
         .filter-section {
             display: flex;
             gap: 15px;
@@ -903,16 +934,14 @@
             overflow: hidden;
             border: 2px solid;
             background-image: 
-                linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+                radial-gradient(circle, rgba(255,255,255,.15) 1px, transparent 1px);
             background-size: 30px 30px;
         }
 
         body.theme-carnival .canvas-container {
             background-color: rgba(255, 255, 255, 0.9);
             background-image: 
-                linear-gradient(rgba(239, 68, 68,.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(239, 68, 68,.08) 1px, transparent 1px);
+                radial-gradient(circle, rgba(239, 68, 68,.2) 1px, transparent 1px);
         }
 
         svg.relationship-canvas {
@@ -1176,6 +1205,33 @@
             margin-bottom: 12px;
         }
 
+        .rel-type-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid currentColor;
+            opacity: 0.7;
+        }
+
+        .rel-type-section:last-child {
+            border-bottom: none;
+        }
+
+        .rel-section-label {
+            font-size: 0.85em;
+            font-weight: bold;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .rel-section-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
         .rel-type-btn {
             background: transparent;
             padding: 6px 10px;
@@ -1189,6 +1245,7 @@
 
         .rel-type-btn.selected {
             font-weight: bold;
+            border-width: 2px;
         }
 
         .rel-type-btn:hover {
@@ -1368,6 +1425,7 @@
 </head>
 <body class="theme-faded" data-font="readable">
     <div class="controls">
+        <button class="settings-btn" onclick="toggleEditMode()" title="Edit Mode">✏️</button>
         <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
     </div>
 
@@ -1496,6 +1554,22 @@
         </div>
     </div>
 
+    <!-- Edit Mode Modal -->
+    <div id="editModeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Enter Edit Mode</div>
+            <div class="form-group">
+                <label>Passcode</label>
+                <input type="password" id="editPasscode" placeholder="Enter passcode" onkeypress="if(event.key==='Enter') checkEditPasscode()">
+            </div>
+            <div id="passcodeError" style="color: #ff6b6b; font-size: 0.9em; margin-bottom: 10px; display: none;">Incorrect passcode. Try again.</div>
+            <div class="modal-buttons">
+                <button class="btn-small" onclick="closeEditModeModal()">Cancel</button>
+                <button class="btn-add" onclick="checkEditPasscode()">Enter</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
@@ -1561,20 +1635,20 @@
     <!-- Edit Relationship Modal -->
     <div id="relationshipModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">Edit Relationship</div>
+            <div class="modal-header">Define Relationship</div>
             <div class="form-group">
                 <label>Between: <span id="modalRelCharacters"></span></label>
             </div>
             <div class="form-group">
-                <label>Relationship Type(s):</label>
-                <div class="relationship-types" id="relationshipTypeContainer"></div>
+                <label>Relationship Type:</label>
+                <div id="relationshipTypeContainer"></div>
             </div>
             <div class="form-group">
-                <label>Notes</label>
+                <label>Notes (Optional)</label>
                 <textarea id="relationshipNotes" placeholder="Add notes about this relationship..."></textarea>
             </div>
             <div class="modal-buttons">
-                <button class="btn-small delete-btn" onclick="deleteRelationship()">Delete</button>
+                <button class="btn-small delete-btn" onclick="deleteRelationship()" id="deleteRelBtn" style="display:none;">Delete</button>
                 <button class="btn-small" onclick="closeRelationshipModal()">Cancel</button>
                 <button class="btn-add" onclick="saveRelationship()">Save</button>
             </div>
@@ -1624,11 +1698,11 @@
     </div>
 
     <script>
-        const relationshipTypes = [
-            'Married', 'Divorced', 'Affair', 'Poly', 'Flame Bond',
-            'Children', 'Adoption', 'Siblings', 'Parent', 'Friend',
-            'Enemy', 'Ally', 'Rival', 'Betrayer', 'Confidant'
-        ];
+        const relationshipTypes = {
+            'Primary': ['Married', 'Divorced', 'Affair', 'Poly', 'Flame Bond'],
+            'Family': ['Parent', 'Child', 'Sibling', 'Nibling', 'Adopted Child'],
+            'Social': ['Friend', 'Enemy', 'Ally', 'Rival', 'Betrayer', 'Confidant']
+        };
 
         const themes = [
             { id: 'theme-faded', name: 'Faded Grand Guignol' },
@@ -1650,15 +1724,67 @@
         let relationshipCharacters = JSON.parse(localStorage.getItem('relationshipCharacters')) || [];
         let relationships = JSON.parse(localStorage.getItem('relationships')) || [];
         let arcs = JSON.parse(localStorage.getItem('arcs')) || [];
-        let selectedCharacters = [];
+        let selectedCharacterIds = [];
         let currentEditingRelationship = null;
         let currentEditingGallery = null;
         let currentEditingArc = null;
         let draggedCard = null;
+        
+        // Edit mode
+        const EDIT_MODE_PASSWORD = 'oathbreaker'; // Change this to your desired passcode
+        let isEditMode = localStorage.getItem('editMode') === 'true';
+        
+        // Initialize view/edit mode on page load
+        if (!isEditMode) {
+            document.body.classList.add('view-only');
+        } else {
+            document.body.classList.remove('view-only');
+        }
 
         // Browser zoom handles scaling automatically
         
-        // Settings
+        // Edit Mode Functions
+        function toggleEditMode() {
+            if (isEditMode) {
+                // Already in edit mode, ask to confirm exit
+                if (confirm('Exit edit mode?')) {
+                    isEditMode = false;
+                    localStorage.setItem('editMode', 'false');
+                    document.body.classList.add('view-only');
+                    alert('Edit mode disabled. Page is now view-only.');
+                }
+            } else {
+                // Not in edit mode, show password prompt
+                document.getElementById('editPasscode').value = '';
+                document.getElementById('passcodeError').style.display = 'none';
+                document.getElementById('editModeModal').classList.add('active');
+            }
+        }
+
+        function checkEditPasscode() {
+            const passcode = document.getElementById('editPasscode').value;
+            if (passcode === EDIT_MODE_PASSWORD) {
+                isEditMode = true;
+                localStorage.setItem('editMode', 'true');
+                document.body.classList.remove('view-only');
+                closeEditModeModal();
+                alert('Edit mode enabled!');
+            } else {
+                document.getElementById('passcodeError').style.display = 'block';
+                document.getElementById('editPasscode').value = '';
+                setTimeout(() => {
+                    closeEditModeModal();
+                }, 2000);
+            }
+        }
+
+        function closeEditModeModal() {
+            document.getElementById('editModeModal').classList.remove('active');
+            document.getElementById('editPasscode').value = '';
+            document.getElementById('passcodeError').style.display = 'none';
+        }
+
+        // Settings Functions
         function openSettings() {
             renderThemeOptions();
             renderFontOptions();
@@ -2203,112 +2329,8 @@
             renderRelationships();
         }
 
-        let linkingFrom = null;
-        let dragLineCanvas = null;
-
-        function startLinking(event, charId) {
-            event.preventDefault();
-            event.stopPropagation();
-            linkingFrom = charId;
-            
-            const card = document.getElementById('char-' + charId);
-            card.classList.add('linking');
-            
-            const container = document.querySelector('.canvas-container');
-            if (!dragLineCanvas) {
-                dragLineCanvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                dragLineCanvas.id = 'dragLine';
-                dragLineCanvas.setAttribute('width', container.offsetWidth);
-                dragLineCanvas.setAttribute('height', container.offsetHeight);
-                dragLineCanvas.style.position = 'absolute';
-                dragLineCanvas.style.top = '0';
-                dragLineCanvas.style.left = '0';
-                dragLineCanvas.style.pointerEvents = 'none';
-                dragLineCanvas.style.zIndex = '5';
-                container.appendChild(dragLineCanvas);
-            }
-            
-            const char = relationshipCharacters.find(c => c.id === charId);
-            const fromX = char.x + 80;
-            const fromY = char.y + 100;
-            
-            const handleMouseMove = (e) => {
-                const rect = container.getBoundingClientRect();
-                const toX = e.clientX - rect.left;
-                const toY = e.clientY - rect.top;
-                
-                dragLineCanvas.innerHTML = '';
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', fromX);
-                line.setAttribute('y1', fromY);
-                line.setAttribute('x2', toX);
-                line.setAttribute('y2', toY);
-                line.setAttribute('stroke', 'currentColor');
-                line.setAttribute('stroke-width', '2');
-                dragLineCanvas.appendChild(line);
-            };
-            
-            const handleMouseUp = (e) => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-                
-                const rect = container.getBoundingClientRect();
-                const toX = e.clientX - rect.left;
-                const toY = e.clientY - rect.top;
-                
-                // Find which character was under the cursor
-                const elementsAtPoint = document.elementsFromPoint(e.clientX, e.clientY);
-                let targetCharId = null;
-                for (let elem of elementsAtPoint) {
-                    if (elem.classList && elem.classList.contains('character-card')) {
-                        const id = elem.id.replace('char-', '');
-                        targetCharId = parseInt(id);
-                        break;
-                    }
-                }
-                
-                if (targetCharId && targetCharId !== linkingFrom) {
-                    createOrEditRelationship(linkingFrom, targetCharId);
-                }
-                
-                if (dragLineCanvas) {
-                    dragLineCanvas.remove();
-                    dragLineCanvas = null;
-                }
-                
-                const card = document.getElementById('char-' + linkingFrom);
-                if (card) card.classList.remove('linking');
-                linkingFrom = null;
-            };
-            
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        }
-
-        function createOrEditRelationship(char1Id, char2Id) {
-            const existingRel = relationships.find(r =>
-                (r.char1 === char1Id && r.char2 === char2Id) ||
-                (r.char1 === char2Id && r.char2 === char1Id)
-            );
-            
-            if (existingRel) {
-                editRelationship(existingRel.id);
-            } else {
-                const newRel = {
-                    id: Date.now(),
-                    char1: char1Id,
-                    char2: char2Id,
-                    types: [],
-                    notes: '',
-                    noteX: 0,
-                    noteY: 0
-                };
-                relationships.push(newRel);
-                localStorage.setItem('relationships', JSON.stringify(relationships));
-                editRelationship(newRel.id);
-            }
-        }
-
+        // Relationship selection and modal handling handled by selectCharacter() and openRelationshipModal()
+        
         function togglePin(charId) {
             const char = relationshipCharacters.find(c => c.id === charId);
             if (char) {
@@ -2412,11 +2434,16 @@
                     ${char.image ? `<img src="${char.image}" alt="${char.name}" class="character-image" onerror="this.style.display='none'">` : '<div style="width:145px;height:200px;opacity:0.3;border-radius:8px;display:flex;align-items:center;justify-content:center;color:currentColor;font-weight:bold;font-size:0.8em;text-align:center;">No Image</div>'}
                     <div class="character-name">${char.name}</div>
                     <div class="character-card-buttons">
-                        <button class="btn-tiny" onmousedown="startLinking(event, ${char.id})">Link</button>
+                        <button class="btn-tiny" onclick="selectCharacter(${char.id})">Select</button>
                         <button class="btn-tiny" onclick="togglePin(${char.id})">📌</button>
                         <button class="btn-tiny delete-btn" onclick="deleteRelationshipCharacter(${char.id})">Del</button>
                     </div>
                 `;
+                
+                // Highlight if selected
+                if (selectedCharacterIds.includes(char.id)) {
+                    card.classList.add('linking');
+                }
 
                 // Drag to move (unless pinned)
                 if (!char.pinned) {
@@ -2452,17 +2479,73 @@
             });
         }
 
-        function editRelationship(relId) {
-            currentEditingRelationship = relationships.find(r => r.id === relId);
-            if (currentEditingRelationship) {
-                const char1 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char1);
-                const char2 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char2);
-                document.getElementById('modalRelCharacters').textContent = `${char1.name} & ${char2.name}`;
-                document.getElementById('relationshipNotes').value = currentEditingRelationship.notes || '';
+        function selectCharacter(charId) {
+            if (selectedCharacterIds.includes(charId)) {
+                selectedCharacterIds = selectedCharacterIds.filter(id => id !== charId);
+            } else {
+                if (selectedCharacterIds.length < 2) {
+                    selectedCharacterIds.push(charId);
+                } else {
+                    selectedCharacterIds.shift();
+                    selectedCharacterIds.push(charId);
+                }
+            }
+            renderRelationships();
+            
+            if (selectedCharacterIds.length === 2) {
+                openRelationshipModal();
+            }
+        }
 
-                const typeContainer = document.getElementById('relationshipTypeContainer');
-                typeContainer.innerHTML = '';
-                relationshipTypes.forEach(type => {
+        function openRelationshipModal() {
+            if (selectedCharacterIds.length !== 2) return;
+            
+            const char1Id = selectedCharacterIds[0];
+            const char2Id = selectedCharacterIds[1];
+            
+            const existingRel = relationships.find(r =>
+                (r.char1 === char1Id && r.char2 === char2Id) ||
+                (r.char1 === char2Id && r.char2 === char1Id)
+            );
+            
+            if (existingRel) {
+                currentEditingRelationship = existingRel;
+                document.getElementById('deleteRelBtn').style.display = 'block';
+            } else {
+                currentEditingRelationship = {
+                    id: Date.now(),
+                    char1: char1Id,
+                    char2: char2Id,
+                    types: [],
+                    notes: '',
+                    noteX: 0,
+                    noteY: 0
+                };
+                document.getElementById('deleteRelBtn').style.display = 'none';
+            }
+            
+            const char1 = relationshipCharacters.find(c => c.id === char1Id);
+            const char2 = relationshipCharacters.find(c => c.id === char2Id);
+            document.getElementById('modalRelCharacters').textContent = `${char1.name} & ${char2.name}`;
+            document.getElementById('relationshipNotes').value = currentEditingRelationship.notes || '';
+
+            const typeContainer = document.getElementById('relationshipTypeContainer');
+            typeContainer.innerHTML = '';
+            
+            // Render organized sections
+            Object.entries(relationshipTypes).forEach(([category, types]) => {
+                const section = document.createElement('div');
+                section.className = 'rel-type-section';
+                
+                const label = document.createElement('div');
+                label.className = 'rel-section-label';
+                label.textContent = category;
+                section.appendChild(label);
+                
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'rel-section-buttons';
+                
+                types.forEach(type => {
                     const btn = document.createElement('button');
                     btn.className = 'rel-type-btn';
                     btn.textContent = type;
@@ -2472,7 +2555,55 @@
                     btn.addEventListener('click', () => {
                         btn.classList.toggle('selected');
                     });
-                    typeContainer.appendChild(btn);
+                    buttonsDiv.appendChild(btn);
+                });
+                
+                section.appendChild(buttonsDiv);
+                typeContainer.appendChild(section);
+            });
+
+            document.getElementById('relationshipModal').classList.add('active');
+        }
+
+        function editRelationship(relId) {
+            currentEditingRelationship = relationships.find(r => r.id === relId);
+            if (currentEditingRelationship) {
+                const char1 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char1);
+                const char2 = relationshipCharacters.find(c => c.id === currentEditingRelationship.char2);
+                document.getElementById('modalRelCharacters').textContent = `${char1.name} & ${char2.name}`;
+                document.getElementById('relationshipNotes').value = currentEditingRelationship.notes || '';
+                document.getElementById('deleteRelBtn').style.display = 'block';
+
+                const typeContainer = document.getElementById('relationshipTypeContainer');
+                typeContainer.innerHTML = '';
+                
+                Object.entries(relationshipTypes).forEach(([category, types]) => {
+                    const section = document.createElement('div');
+                    section.className = 'rel-type-section';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'rel-section-label';
+                    label.textContent = category;
+                    section.appendChild(label);
+                    
+                    const buttonsDiv = document.createElement('div');
+                    buttonsDiv.className = 'rel-section-buttons';
+                    
+                    types.forEach(type => {
+                        const btn = document.createElement('button');
+                        btn.className = 'rel-type-btn';
+                        btn.textContent = type;
+                        if (currentEditingRelationship.types.includes(type)) {
+                            btn.classList.add('selected');
+                        }
+                        btn.addEventListener('click', () => {
+                            btn.classList.toggle('selected');
+                        });
+                        buttonsDiv.appendChild(btn);
+                    });
+                    
+                    section.appendChild(buttonsDiv);
+                    typeContainer.appendChild(section);
                 });
 
                 document.getElementById('relationshipModal').classList.add('active');
