@@ -945,12 +945,54 @@
             background-image: 
                 radial-gradient(circle, rgba(255,255,255,.15) 1px, transparent 1px);
             background-size: 30px 30px;
+            cursor: grab;
+            user-select: none;
         }
 
-        body.theme-carnival .canvas-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            background-image: 
-                radial-gradient(circle, rgba(239, 68, 68,.2) 1px, transparent 1px);
+        .canvas-container.panning {
+            cursor: grabbing;
+        }
+
+        .canvas-controls {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 50;
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 6px;
+            backdrop-filter: blur(5px);
+        }
+
+        .canvas-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid currentColor;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+            opacity: 0.8;
+        }
+
+        .canvas-btn:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .canvas-zoom-display {
+            padding: 6px 10px;
+            font-size: 0.85em;
+            border: 1px solid currentColor;
+            border-radius: 4px;
+            min-width: 50px;
+            text-align: center;
         }
 
         svg.relationship-canvas {
@@ -1541,7 +1583,13 @@
                 <strong>How to use:</strong> Drag characters around the canvas. Click "Link" on a character and drag to another to connect them. Edit the relationship in the modal. Pin characters to lock them. Drag sticky notes around. Scroll down to add new characters.
             </div>
 
-            <div class="canvas-container">
+            <div class="canvas-container" id="relationshipCanvasContainer">
+                <div class="canvas-controls">
+                    <button class="canvas-btn" onclick="zoomCanvasOut()" title="Zoom Out">−</button>
+                    <span class="canvas-zoom-display" id="canvasZoomLevel">100%</span>
+                    <button class="canvas-btn" onclick="zoomCanvasIn()" title="Zoom In">+</button>
+                    <button class="canvas-btn" onclick="resetCanvasZoom()" title="Reset">⊙</button>
+                </div>
                 <svg class="relationship-canvas" id="relationshipCanvas"></svg>
                 <div class="characters-container" id="charactersContainer"></div>
             </div>
@@ -1747,6 +1795,12 @@
         let relationships = JSON.parse(localStorage.getItem('relationships')) || [];
         let arcs = JSON.parse(localStorage.getItem('arcs')) || [];
         let selectedCharacterIds = [];
+        let canvasZoom = 1;
+        let canvasPanX = 0;
+        let canvasPanY = 0;
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
         let currentEditingRelationship = null;
         let currentEditingGallery = null;
         let currentEditingArc = null;
@@ -2843,6 +2897,84 @@
                 renderRelationships();
             }
         }
+
+        // Canvas Zoom and Pan
+        function zoomCanvasIn() {
+            canvasZoom = Math.min(canvasZoom + 0.1, 2.5);
+            updateCanvasTransform();
+        }
+
+        function zoomCanvasOut() {
+            canvasZoom = Math.max(canvasZoom - 0.1, 0.5);
+            updateCanvasTransform();
+        }
+
+        function resetCanvasZoom() {
+            canvasZoom = 1;
+            canvasPanX = 0;
+            canvasPanY = 0;
+            updateCanvasTransform();
+        }
+
+        function updateCanvasTransform() {
+            const container = document.getElementById('charactersContainer');
+            container.style.transform = `translate(${canvasPanX}px, ${canvasPanY}px) scale(${canvasZoom})`;
+            container.style.transformOrigin = '0 0';
+            
+            const canvas = document.getElementById('relationshipCanvas');
+            canvas.style.transform = `translate(${canvasPanX}px, ${canvasPanY}px) scale(${canvasZoom})`;
+            canvas.style.transformOrigin = '0 0';
+            
+            document.getElementById('canvasZoomLevel').textContent = Math.round(canvasZoom * 100) + '%';
+            localStorage.setItem('canvasZoom', canvasZoom);
+            localStorage.setItem('canvasPanX', canvasPanX);
+            localStorage.setItem('canvasPanY', canvasPanY);
+        }
+
+        // Pan canvas with middle mouse button or spacebar + drag
+        const canvasContainer = document.getElementById('relationshipCanvasContainer');
+        if (canvasContainer) {
+            canvasContainer.addEventListener('mousedown', (e) => {
+                // Middle mouse button (button 2) or spacebar
+                if (e.button === 1 || (e.button === 0 && e.spaceKey)) {
+                    isPanning = true;
+                    panStartX = e.clientX - canvasPanX;
+                    panStartY = e.clientY - canvasPanY;
+                    canvasContainer.classList.add('panning');
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isPanning && canvasContainer) {
+                    canvasPanX = e.clientX - panStartX;
+                    canvasPanY = e.clientY - panStartY;
+                    updateCanvasTransform();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    canvasContainer.classList.remove('panning');
+                }
+            });
+
+            // Wheel zoom (Ctrl + scroll)
+            canvasContainer.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                    canvasZoom = Math.max(0.5, Math.min(canvasZoom * zoomFactor, 2.5));
+                    updateCanvasTransform();
+                }
+            });
+        }
+
+        // Restore canvas zoom/pan on page load
+        canvasZoom = parseFloat(localStorage.getItem('canvasZoom')) || 1;
+        canvasPanX = parseFloat(localStorage.getItem('canvasPanX')) || 0;
+        canvasPanY = parseFloat(localStorage.getItem('canvasPanY')) || 0;
 
         // Initialize
         updateCharacterFilter();
